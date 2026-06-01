@@ -2,6 +2,10 @@
 
 Minimal Next.js + MongoDB booking system for Assignment 2.
 
+## Deployed site
+
+https://airline-booking-system-ass2.vercel.app/
+
 ## Run locally
 
 ```bash
