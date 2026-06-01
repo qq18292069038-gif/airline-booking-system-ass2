@@ -21,6 +21,10 @@ async function collection() {
 }
 
 async function readLocalSchedules() {
+  if (process.env.VERCEL) {
+    return generateSchedules();
+  }
+
   try {
     return JSON.parse(await readFile(dataFile, "utf8")) as Schedule[];
   } catch {
@@ -31,6 +35,10 @@ async function readLocalSchedules() {
 }
 
 async function writeLocalSchedules(schedules: Schedule[]) {
+  if (process.env.VERCEL) {
+    return;
+  }
+
   await mkdir(path.dirname(dataFile), { recursive: true });
   await writeFile(dataFile, JSON.stringify(schedules, null, 2));
 }

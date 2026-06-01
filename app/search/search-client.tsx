@@ -17,20 +17,37 @@ export default function SearchClient() {
   async function search(event: React.FormEvent) {
     event.preventDefault();
     setMessage("Searching...");
-    const response = await fetch(`/api/schedules?orig=${orig}&dest=${dest}&date1=${date1}&date2=${date2}`);
-    const data = await response.json();
-    setSchedules(data.schedules || []);
-    setMessage(data.schedules?.length ? "" : "No flights found for this route and date range.");
+    try {
+      const response = await fetch(`/api/schedules?orig=${orig}&dest=${dest}&date1=${date1}&date2=${date2}`);
+      const data = await response.json();
+      if (!response.ok) {
+        setSchedules([]);
+        setMessage(data.error || "Search failed.");
+        return;
+      }
+      setSchedules(data.schedules || []);
+      setMessage(data.schedules?.length ? "" : "No flights found for this route and date range.");
+    } catch {
+      setSchedules([]);
+      setMessage("Search failed. Please check the deployment settings.");
+    }
   }
 
   async function book(scheduleId: string) {
     setMessage("Booking...");
-    const response = await fetch("/api/bookings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ scheduleId, passengerName, email })
-    });
-    const data = await response.json();
+    let data;
+    let response;
+    try {
+      response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scheduleId, passengerName, email })
+      });
+      data = await response.json();
+    } catch {
+      setMessage("Booking failed. Please check the deployment settings.");
+      return;
+    }
 
     if (!response.ok) {
       setMessage(data.error || "Booking failed.");
